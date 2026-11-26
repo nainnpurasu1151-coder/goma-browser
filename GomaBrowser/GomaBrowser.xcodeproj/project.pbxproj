@@ -1,0 +1,302 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AA00000000000000000000B1 /* GomaBrowserApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000000000000F1 /* GomaBrowserApp.swift */; };
+		AA00000000000000000000B2 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000000000000F2 /* ContentView.swift */; };
+		AA00000000000000000000B3 /* BrowserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000000000000F3 /* BrowserViewModel.swift */; };
+		AA00000000000000000000B4 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000000000000F4 /* WebView.swift */; };
+		AA00000000000000000000B5 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000000000000F5 /* Models.swift */; };
+		AA00000000000000000000B6 /* MatchPattern.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000000000000F6 /* MatchPattern.swift */; };
+		AA00000000000000000000B7 /* ExtensionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000000000000F7 /* ExtensionManager.swift */; };
+		AA00000000000000000000B8 /* ZipReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000000000000F8 /* ZipReader.swift */; };
+		AA00000000000000000000B9 /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000000000000F9 /* DownloadManager.swift */; };
+		AA00000000000000000000BA /* Bridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000000000000FA /* Bridge.swift */; };
+		AA00000000000000000000BB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA00000000000000000000FB /* Assets.xcassets */; };
+		AA00000000000000000000BC /* chrome-shim.js in Resources */ = {isa = PBXBuildFile; fileRef = AA00000000000000000000FC /* chrome-shim.js */; };
+		AA00000000000000000000BD /* Extensions in Resources */ = {isa = PBXBuildFile; fileRef = AA00000000000000000000FD /* Extensions */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		AA00000000000000000000F1 /* GomaBrowserApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GomaBrowserApp.swift; sourceTree = "<group>"; };
+		AA00000000000000000000F2 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		AA00000000000000000000F3 /* BrowserViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserViewModel.swift; sourceTree = "<group>"; };
+		AA00000000000000000000F4 /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
+		AA00000000000000000000F5 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		AA00000000000000000000F6 /* MatchPattern.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchPattern.swift; sourceTree = "<group>"; };
+		AA00000000000000000000F7 /* ExtensionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionManager.swift; sourceTree = "<group>"; };
+		AA00000000000000000000F8 /* ZipReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZipReader.swift; sourceTree = "<group>"; };
+		AA00000000000000000000F9 /* DownloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
+		AA00000000000000000000FA /* Bridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bridge.swift; sourceTree = "<group>"; };
+		AA00000000000000000000FB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		AA00000000000000000000FC /* chrome-shim.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "Resources/chrome-shim.js"; sourceTree = "<group>"; };
+		AA00000000000000000000FD /* Extensions */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Resources/Extensions; sourceTree = "<group>"; };
+		AA00000000000000000000FE /* GomaBrowser.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GomaBrowser.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AA00000000000000000000P3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AA00000000000000000000G0 = {
+			isa = PBXGroup;
+			children = (
+				AA00000000000000000000G1 /* GomaBrowser */,
+				AA00000000000000000000G2 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AA00000000000000000000G1 /* GomaBrowser */ = {
+			isa = PBXGroup;
+			children = (
+				AA00000000000000000000F1 /* GomaBrowserApp.swift */,
+				AA00000000000000000000F2 /* ContentView.swift */,
+				AA00000000000000000000F3 /* BrowserViewModel.swift */,
+				AA00000000000000000000F4 /* WebView.swift */,
+				AA00000000000000000000F5 /* Models.swift */,
+				AA00000000000000000000F6 /* MatchPattern.swift */,
+				AA00000000000000000000F7 /* ExtensionManager.swift */,
+				AA00000000000000000000F8 /* ZipReader.swift */,
+				AA00000000000000000000F9 /* DownloadManager.swift */,
+				AA00000000000000000000FA /* Bridge.swift */,
+				AA00000000000000000000FB /* Assets.xcassets */,
+				AA00000000000000000000FC /* chrome-shim.js */,
+				AA00000000000000000000FD /* Extensions */,
+			);
+			path = GomaBrowser;
+			sourceTree = "<group>";
+		};
+		AA00000000000000000000G2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AA00000000000000000000FE /* GomaBrowser.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AA00000000000000000000T1 /* GomaBrowser */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA00000000000000000000C3 /* Build configuration list for PBXNativeTarget "GomaBrowser" */;
+			buildPhases = (
+				AA00000000000000000000P1 /* Sources */,
+				AA00000000000000000000P3 /* Frameworks */,
+				AA00000000000000000000P2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = GomaBrowser;
+			productName = GomaBrowser;
+			productReference = AA00000000000000000000FE /* GomaBrowser.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AA00000000000000000000PR /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					AA00000000000000000000T1 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = AA00000000000000000000C0 /* Build configuration list for PBXProject "GomaBrowser" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				ja,
+			);
+			mainGroup = AA00000000000000000000G0;
+			productRefGroup = AA00000000000000000000G2 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AA00000000000000000000T1 /* GomaBrowser */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AA00000000000000000000P2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA00000000000000000000BB /* Assets.xcassets in Resources */,
+				AA00000000000000000000BC /* chrome-shim.js in Resources */,
+				AA00000000000000000000BD /* Extensions in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AA00000000000000000000P1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA00000000000000000000B1 /* GomaBrowserApp.swift in Sources */,
+				AA00000000000000000000B2 /* ContentView.swift in Sources */,
+				AA00000000000000000000B3 /* BrowserViewModel.swift in Sources */,
+				AA00000000000000000000B4 /* WebView.swift in Sources */,
+				AA00000000000000000000B5 /* Models.swift in Sources */,
+				AA00000000000000000000B6 /* MatchPattern.swift in Sources */,
+				AA00000000000000000000B7 /* ExtensionManager.swift in Sources */,
+				AA00000000000000000000B8 /* ZipReader.swift in Sources */,
+				AA00000000000000000000B9 /* DownloadManager.swift in Sources */,
+				AA00000000000000000000BA /* Bridge.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		AA00000000000000000000C1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		AA00000000000000000000C2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		AA00000000000000000000C4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "";
+				INFOPLIST_KEY_CFBundleDisplayName = "ごまブラウザ";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UIFileSharingEnabled = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goma.browser;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMBED_LIBRARIES = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AA00000000000000000000C5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "";
+				INFOPLIST_KEY_CFBundleDisplayName = "ごまブラウザ";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UIFileSharingEnabled = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goma.browser;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMBED_LIBRARIES = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AA00000000000000000000C0 /* Build configuration list for PBXProject "GomaBrowser" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA00000000000000000000C1 /* Debug */,
+				AA00000000000000000000C2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA00000000000000000000C3 /* Build configuration list for PBXNativeTarget "GomaBrowser" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA00000000000000000000C4 /* Debug */,
+				AA00000000000000000000C5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = AA00000000000000000000PR /* Project object */;
+}

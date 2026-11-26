@@ -1,0 +1,42 @@
+== 1) JS syntax check ==
+  PASS chrome-shim.js
+  PASS background.js
+  PASS content.js
+  PASS popup.js
+  PASS match-pattern.js
+== 2) manifest parse & API coverage ==
+  PASS manifest_version === 3
+  PASS background.service_worker
+  PASS action.default_popup
+  PASS content_scripts x1
+  PASS run_at document_idle
+  PASS file exists: content.js
+  PASS file exists: background.js
+  PASS file exists: popup.html
+  used APIs: downloads.download, downloads.onChanged, downloads.search, runtime.lastError, runtime.onMessage, runtime.sendMessage, tabs.query, tabs.sendMessage
+  PASS shim covers chrome.tabs.query
+  PASS shim covers chrome.tabs.sendMessage
+  PASS shim covers chrome.runtime.lastError
+  PASS shim covers chrome.runtime.onMessage
+  PASS shim covers chrome.downloads.download
+  PASS shim covers chrome.downloads.onChanged
+  PASS shim covers chrome.downloads.search
+  PASS shim covers chrome.runtime.sendMessage
+  PASS background uses setInterval (WebView JS timer)
+== 3) URL match patterns ==
+  PASS https://www.youtube.com/*  vs  https://www.youtube.com/watch?v=abc  => true (expected true)
+  PASS https://www.youtube.com/*  vs  https://www.youtube.com/  => true (expected true)
+  PASS https://www.youtube.com/*  vs  https://www.youtube.com/@channel/videos  => true (expected true)
+  PASS https://www.youtube.com/*  vs  https://m.youtube.com/watch?v=abc  => false (expected false)
+  PASS https://www.youtube.com/*  vs  http://www.youtube.com/watch?v=abc  => false (expected false)
+  PASS https://www.youtube.com/*  vs  https://www.youtube.com.evil.example/  => false (expected false)
+  PASS https://*.googlevideo.com/*  vs  https://rr1---sn-abc.googlevideo.com/videoplayback?x=1  => true (expected true)
+  PASS https://*.googlevideo.com/*  vs  https://googlevideo.com/videoplayback  => true (expected true)
+  PASS https://*.googlevideo.com/*  vs  https://notgooglevideo.com/  => false (expected false)
+  PASS *://*.example.com/*  vs  http://a.example.com/x  => true (expected true)
+  PASS *://*.example.com/*  vs  ftp://a.example.com/x  => false (expected false)
+  PASS <all_urls>  vs  https://anything.example/path  => true (expected true)
+  PASS https://www.youtube.com/watch*  vs  https://www.youtube.com/watch?v=1  => true (expected true)
+  PASS https://www.youtube.com/watch*  vs  https://www.youtube.com/feed  => false (expected false)
+
+RESULT: 36 passed, 0 failed

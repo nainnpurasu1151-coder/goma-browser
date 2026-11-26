@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; }
+  body { width: 372px; margin: 0; padding: 12px; background: #141414; color: #eee; font-family: sans-serif; font-size: 13px; }
+  h1 { font-size: 14px; margin: 0 0 8px; color: #e9c33c; }
+  #note { color: #f0a0a0; font-size: 12px; margin-bottom: 8px; display: none; }
+  .row-tools { display: flex; gap: 8px; margin-bottom: 6px; }
+  .row-tools button, #add-urls { background: #2b2b2b; color: #ddd; border: 1px solid #444; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 12px; }
+  #list { max-height: 300px; overflow: auto; border: 1px solid #333; border-radius: 8px; padding: 4px 0; margin-bottom: 8px; }
+  .item { display: flex; gap: 8px; align-items: flex-start; padding: 6px 10px; cursor: pointer; }
+  .item:hover { background: #1e1e1e; }
+  .item input { margin-top: 2px; }
+  .item .t { flex: 1; line-height: 1.35; word-break: break-all; }
+  .badge { color: #111; background: #e9c33c; border-radius: 4px; font-size: 10px; padding: 0 4px; margin-left: 4px; white-space: nowrap; }
+  #empty { padding: 14px 10px; color: #999; }
+  details { margin-bottom: 8px; }
+  summary { cursor: pointer; color: #bbb; font-size: 12px; }
+  #urls { width: 100%; height: 56px; margin: 6px 0; background: #1e1e1e; color: #eee; border: 1px solid #444; border-radius: 6px; padding: 6px; font-size: 12px; }
+  #go { width: 100%; background: #c8a415; color: #111; border: none; border-radius: 999px; padding: 11px; font-size: 14px; font-weight: 700; cursor: pointer; }
+  #go:disabled { background: #555; color: #999; cursor: default; }
+  #status { margin-top: 8px; color: #9fd08a; font-size: 12px; min-height: 16px; }
+  .hint { color: #888; font-size: 11px; margin-top: 6px; line-height: 1.5; }
+</style>
+</head>
+<body>
+  <h1>⬇ ごま動画セーバー v2</h1>
+  <div id="note"></div>
+  <div class="row-tools">
+    <button id="all">全て選択</button>
+    <button id="none">全て解除</button>
+    <span id="count" style="margin-left:auto;color:#bbb;"></span>
+  </div>
+  <div id="list"><div id="empty">読み込み中…</div></div>
+  <details>
+    <summary>URLを貼って追加する</summary>
+    <textarea id="urls" placeholder="YouTubeのURLを1行に1本ずつ貼る"></textarea>
+    <button id="add-urls">リストに追加</button>
+  </details>
+  <button id="go" disabled>選択した動画をダウンロード</button>
+  <div id="status"></div>
+  <div class="hint">画質は360p固定。同時に落としても回線の帯域を分け合うので速くはならないけど、1本ずつ待たなくてよくなります。進み具合はページ左下のパネルに出ます。</div>
+  <script src="popup.js"></script>
+</body>
+</html>
