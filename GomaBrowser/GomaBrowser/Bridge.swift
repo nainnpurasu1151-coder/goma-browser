@@ -281,8 +281,8 @@ final class Bridge: NSObject, WKScriptMessageHandler {
             }
         }
         let js = "window.__gomaDeliverMessage && window.__gomaDeliverMessage(\(ShimFactory.jsLiteral(message)), \(ShimFactory.jsLiteral(sender)), \(ShimFactory.jsLiteral(responseId)));"
-        DispatchQueue.main.async {
-            target.evaluateJavaScript(js, in: .page) { _ in }
+        Task { @MainActor in
+            _ = try? await target.evaluateJavaScript(js, in: .page)
         }
     }
 
@@ -290,10 +290,10 @@ final class Bridge: NSObject, WKScriptMessageHandler {
     func broadcastDownloadChanged(item: DownloadItem, previousState: GomaDownloadState?) {
         let delta = downloadDelta(item: item, previousState: previousState)
         let js = "window.__gomaDownloadsChanged && window.__gomaDownloadsChanged(\(ShimFactory.jsLiteral(delta)));"
-        DispatchQueue.main.async {
-            for (_, wv) in self.backgroundService.webViews { wv.evaluateJavaScript(js, in: .page) { _ in } }
-            for tab in self.browser?.tabs ?? [] { tab.webView.evaluateJavaScript(js, in: .page) { _ in } }
-            self.popupWebView?.evaluateJavaScript(js, in: .page) { _ in }
+        Task { @MainActor in
+            for (_, wv) in self.backgroundService.webViews { _ = try? await wv.evaluateJavaScript(js, in: .page) }
+            for tab in self.browser?.tabs ?? [] { _ = try? await tab.webView.evaluateJavaScript(js, in: .page) }
+            if let popup = self.popupWebView { _ = try? await popup.evaluateJavaScript(js, in: .page) }
         }
     }
 
@@ -343,13 +343,11 @@ final class Bridge: NSObject, WKScriptMessageHandler {
                 combined += "\n" + src
             }
         }
-        DispatchQueue.main.async {
-            tab.webView.evaluateJavaScript(combined, in: .page) { result in
-                var value: Any = NSNull()
-                if case .success(let v) = result { value = v }
-                self.resolve(webView: source, callbackId: callbackId,
-                             result: ["results": [["frameId": 0, "result": value]]], error: nil)
-            }
+        Task { @MainActor in
+            var value: Any = NSNull()
+            if let v = try? await tab.webView.evaluateJavaScript(combined, in: .page) { value = v }
+            self.resolve(webView: source, callbackId: callbackId,
+                         result: ["results": [["frameId": 0, "result": value]]], error: nil)
         }
     }
 
@@ -357,7 +355,7 @@ final class Bridge: NSObject, WKScriptMessageHandler {
     func resolve(webView: WKWebView?, callbackId: String, result: [String: Any]?, error: String?) {
         guard let webView = webView, !callbackId.isEmpty else { return }
         let js = "window.__gomaResolve && window.__gomaResolve(\(ShimFactory.jsLiteral(callbackId)), \(ShimFactory.jsLiteral(result)), \(ShimFactory.jsLiteral(error)));"
-        DispatchQueue.main.async { webView.evaluateJavaScript(js, in: .page) { _ in } }
+        Task { @MainActor in _ = try? await webView.evaluateJavaScript(js, in: .page) }
     }
 
     // MARK: content script 注入 (ナビゲーション完了時に呼ぶ)
@@ -384,11 +382,11 @@ final class Bridge: NSObject, WKScriptMessageHandler {
                     }
                 }
                 let full = source
-                DispatchQueue.main.async {
-                    tab.webView.evaluateJavaScript(full, in: .page) { result in
-                        if case .failure(let e) = result {
-                            NSLog("[GomaBrowser] content script inject failed (\(ext.name)): \(e)")
-                        }
+                Task { @MainActor in
+                    do {
+                        _ = try await tab.webView.evaluateJavaScript(full, in: .page)
+                    } catch {
+                        NSLog("[GomaBrowser] content script inject failed (\(ext.name)): \(error)")
                     }
                 }
             }

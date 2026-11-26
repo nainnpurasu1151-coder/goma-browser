@@ -38,17 +38,16 @@ final class ExtensionManager: ObservableObject {
         try? FileManager.default.removeItem(at: dest)
         do {
             try FileManager.default.copyItem(at: src, to: dest)
-            if let manifest = try loadManifest(in: dest) {
-                let ext = InstalledExtension(
-                    id: Self.stableID(forDirectory: Self.bundledVideoSaverDir),
-                    manifest: manifest,
-                    directoryName: Self.bundledVideoSaverDir,
-                    isEnabled: true,
-                    isBundled: true
-                )
-                extensions.append(ext)
-                saveRegistry()
-            }
+            let manifest = try loadManifest(in: dest)
+            let ext = InstalledExtension(
+                id: Self.stableID(forDirectory: Self.bundledVideoSaverDir),
+                manifest: manifest,
+                directoryName: Self.bundledVideoSaverDir,
+                isEnabled: true,
+                isBundled: true
+            )
+            extensions.append(ext)
+            saveRegistry()
         } catch {
             NSLog("[GomaBrowser] bundled install failed: \(error)")
         }
