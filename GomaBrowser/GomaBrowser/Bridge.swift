@@ -121,8 +121,25 @@ enum ShimFactory {
         """
     }
     static func source(extId: String, context: String, tabId: Int?, manifest: ExtensionManifest?) -> String {
-        preamble(extId: extId, context: context, tabId: tabId, manifest: manifest) + "\n" + shimSource
+        preamble(extId: extId, context: context, tabId: tabId, manifest: manifest) + "\n" + shimSource + "\n" + relaySource
     }
+
+    /// ページワールドへの動的評価リレー。
+    /// evaluateJavaScript の world 指定版は (frame, world) の2引数形しか無く単独では使えないため、
+    /// デフォルトワールドから DOM CustomEvent を発火し、ページワールド側で受けて eval する。
+    /// DOM はワールド間で共有されるため、detail の文字列はそのまま届く。
+    static let relaySource = """
+    ;(function(){
+      if (window.__gomaRelayInstalled) return;
+      window.__gomaRelayInstalled = true;
+      document.addEventListener('__goma_eval', function(e){
+        try { (0, eval)(String(e.detail || '')); }
+        catch (err) {
+          try { webkit.messageHandlers.gomaBridge.postMessage({api:'relay', method:'error', extId: window.__GOMA_EXT_ID__ || '', context:'relay', tabId: window.__GOMA_TAB_ID__, args:{error: String((err && err.message) || err)}}); } catch (_) {}
+        }
+      });
+    })();
+    """
     static func userScript(extId: String, context: String, tabId: Int?, manifest: ExtensionManifest?) -> WKUserScript {
         WKUserScript(source: source(extId: extId, context: context, tabId: tabId, manifest: manifest),
                      injectionTime: .atDocumentStart, forMainFrameOnly: false, in: .page)
@@ -176,6 +193,8 @@ final class Bridge: NSObject, WKScriptMessageHandler {
         let source = message.webView
 
         switch (api, method) {
+        case ("relay", "error"):
+            NSLog("[GomaBrowser] relay eval error: \(args["error"] as? String ?? "?")")
         case ("runtime", "__messageResponse"):
             if let (origin, originCb) = pendingResponses.removeValue(forKey: callbackId) {
                 resolve(webView: origin, callbackId: originCb, result: ["value": args["value"] as Any], error: nil)
@@ -281,19 +300,17 @@ final class Bridge: NSObject, WKScriptMessageHandler {
             }
         }
         let js = "window.__gomaDeliverMessage && window.__gomaDeliverMessage(\(ShimFactory.jsLiteral(message)), \(ShimFactory.jsLiteral(sender)), \(ShimFactory.jsLiteral(responseId)));"
-        Task { @MainActor in
-            _ = try? await target.evaluateJavaScript(js, in: .page)
-        }
+        DispatchQueue.main.async { self.evalInPage(target, js) }
     }
 
     // MARK: downloads.onChanged 配送
     func broadcastDownloadChanged(item: DownloadItem, previousState: GomaDownloadState?) {
         let delta = downloadDelta(item: item, previousState: previousState)
         let js = "window.__gomaDownloadsChanged && window.__gomaDownloadsChanged(\(ShimFactory.jsLiteral(delta)));"
-        Task { @MainActor in
-            for (_, wv) in self.backgroundService.webViews { _ = try? await wv.evaluateJavaScript(js, in: .page) }
-            for tab in self.browser?.tabs ?? [] { _ = try? await tab.webView.evaluateJavaScript(js, in: .page) }
-            if let popup = self.popupWebView { _ = try? await popup.evaluateJavaScript(js, in: .page) }
+        DispatchQueue.main.async {
+            for (_, wv) in self.backgroundService.webViews { self.evalInPage(wv, js) }
+            for tab in self.browser?.tabs ?? [] { self.evalInPage(tab.webView, js) }
+            if let popup = self.popupWebView { self.evalInPage(popup, js) }
         }
     }
 
@@ -343,19 +360,23 @@ final class Bridge: NSObject, WKScriptMessageHandler {
                 combined += "\n" + src
             }
         }
-        Task { @MainActor in
-            var value: Any = NSNull()
-            if let v = try? await tab.webView.evaluateJavaScript(combined, in: .page) { value = v }
-            self.resolve(webView: source, callbackId: callbackId,
-                         result: ["results": [["frameId": 0, "result": value]]], error: nil)
-        }
+        // リレーは fire-and-forget のため結果値は返せない (v1制限。同梱拡張は scripting 未使用)
+        DispatchQueue.main.async { self.evalInPage(tab.webView, combined) }
+        resolve(webView: source, callbackId: callbackId,
+                result: ["results": [["frameId": 0, "result": NSNull()]]], error: nil)
+    }
+
+    /// ページワールドで JS を実行する。DOM イベント経由のリレー (ShimFactory.relaySource) を使う。
+    func evalInPage(_ webView: WKWebView, _ js: String) {
+        let dispatch = "document.dispatchEvent(new CustomEvent('__goma_eval', {detail: \(ShimFactory.jsLiteral(js))}));"
+        webView.evaluateJavaScript(dispatch) { _ in }
     }
 
     // MARK: 応答
     func resolve(webView: WKWebView?, callbackId: String, result: [String: Any]?, error: String?) {
         guard let webView = webView, !callbackId.isEmpty else { return }
         let js = "window.__gomaResolve && window.__gomaResolve(\(ShimFactory.jsLiteral(callbackId)), \(ShimFactory.jsLiteral(result)), \(ShimFactory.jsLiteral(error)));"
-        Task { @MainActor in _ = try? await webView.evaluateJavaScript(js, in: .page) }
+        DispatchQueue.main.async { self.evalInPage(webView, js) }
     }
 
     // MARK: content script 注入 (ナビゲーション完了時に呼ぶ)
@@ -382,13 +403,7 @@ final class Bridge: NSObject, WKScriptMessageHandler {
                     }
                 }
                 let full = source
-                Task { @MainActor in
-                    do {
-                        _ = try await tab.webView.evaluateJavaScript(full, in: .page)
-                    } catch {
-                        NSLog("[GomaBrowser] content script inject failed (\(ext.name)): \(error)")
-                    }
-                }
+                DispatchQueue.main.async { self.evalInPage(tab.webView, full) }
             }
         }
     }

@@ -66,7 +66,9 @@ enum ZipReader {
         // 先頭が zlib ヘッダでない raw deflate 前提: COMPRESSION_ZLIB は zlib 形式を期待するため
         // ストリームAPIで raw を扱う。失敗時はそのまま返すフォールバックを持つ。
         var status: compression_status
-        var stream = compression_stream(dst_ptr: nil, dst_size: 0, src_ptr: nil, src_size: 0, state: nil)
+        let dummy = UnsafeMutablePointer<UInt8>.allocate(capacity: 1)
+        defer { dummy.deallocate() }
+        var stream = compression_stream(dst_ptr: dummy, dst_size: 0, src_ptr: UnsafePointer(dummy), src_size: 0, state: nil)
         status = compression_stream_init(&stream, COMPRESSION_STREAM_DECODE, COMPRESSION_ZLIB)
         guard status == COMPRESSION_STATUS_OK else { throw ZipError.unsupported }
         defer { compression_stream_destroy(&stream) }

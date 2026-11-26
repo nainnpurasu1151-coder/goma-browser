@@ -39,6 +39,11 @@ final class BrowserViewModel: NSObject, ObservableObject {
         config.setURLSchemeHandler(schemeHandler, forURLScheme: GomaSchemeHandler.scheme)
         config.allowsInlineMediaPlayback = true
         config.mediaTypesRequiringUserActionForPlayback = []
+        // 有効な拡張の shim + リレーを documentStart にページワールドへ注入する
+        for ext in extensionManager.extensions where ext.isEnabled {
+            config.userContentController.addUserScript(
+                ShimFactory.userScript(extId: ext.id, context: "content", tabId: nextTabId, manifest: ext.manifest))
+        }
         let wv = WKWebView(frame: .zero, configuration: config)
         wv.allowsBackForwardNavigationGestures = true
         // iPad 向けにデスクトップ寄り表示 (YouTube の PC 向けUIでカード一覧を出すため)
