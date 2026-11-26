@@ -1,0 +1,57 @@
+name: Build GomaBrowser IPA (unsigned)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "GomaBrowser/**"
+      - ".github/workflows/build-ipa.yml"
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          ls /Applications | grep -i xcode || true
+          sudo xcode-select -s /Applications/Xcode.app || true
+          xcodebuild -version
+
+      - name: Build (no code signing)
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project GomaBrowser/GomaBrowser.xcodeproj \
+            -scheme GomaBrowser \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: Package unsigned IPA
+        run: |
+          set -euo pipefail
+          APP_PATH=$(find build/DerivedData/Build/Products/Release-iphoneos -maxdepth 1 -name "*.app" | head -n 1)
+          echo "App: $APP_PATH"
+          test -n "$APP_PATH"
+          rm -rf build/Payload
+          mkdir -p build/Payload
+          cp -R "$APP_PATH" build/Payload/
+          rm -rf "build/Payload/$(basename "$APP_PATH")/_CodeSignature"
+          cd build
+          zip -qry GomaBrowser-unsigned.ipa Payload
+          ls -lh GomaBrowser-unsigned.ipa
+          unzip -l GomaBrowser-unsigned.ipa | head -n 40
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GomaBrowser-unsigned-ipa
+          path: build/GomaBrowser-unsigned.ipa
+          if-no-files-found: error
