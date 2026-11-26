@@ -79,7 +79,7 @@ enum ZipReader {
         src = [UInt8](wrapped)
         var ok = false
         try src.withUnsafeBufferPointer { srcPtr in
-            stream.src_ptr = UnsafeMutablePointer(mutating: srcPtr.baseAddress!)
+            stream.src_ptr = srcPtr.baseAddress!
             stream.src_size = src.count
             while true {
                 let dst = UnsafeMutablePointer<UInt8>.allocate(capacity: chunk)

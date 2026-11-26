@@ -369,7 +369,7 @@ final class Bridge: NSObject, WKScriptMessageHandler {
     /// ページワールドで JS を実行する。DOM イベント経由のリレー (ShimFactory.relaySource) を使う。
     func evalInPage(_ webView: WKWebView, _ js: String) {
         let dispatch = "document.dispatchEvent(new CustomEvent('__goma_eval', {detail: \(ShimFactory.jsLiteral(js))}));"
-        webView.evaluateJavaScript(dispatch) { _ in }
+        webView.evaluateJavaScript(dispatch) { _, _ in }
     }
 
     // MARK: 応答
