@@ -10,6 +10,7 @@ final class BrowserViewModel: NSObject, ObservableObject {
     let downloadManager = DownloadManager()
     let bridge = Bridge()
     let schemeHandler = GomaSchemeHandler()
+    let linkSaver = LinkSaverEngine()
 
     var selectedTab: BrowserTab? { tabs.first { $0.id == selectedTabId } }
 
@@ -19,6 +20,7 @@ final class BrowserViewModel: NSObject, ObservableObject {
         bridge.browser = self
         bridge.extensionManager = extensionManager
         bridge.downloadManager = downloadManager
+        linkSaver.downloadManager = downloadManager
         downloadManager.onChanged = { [weak self] item, prev in
             self?.bridge.broadcastDownloadChanged(item: item, previousState: prev)
         }
