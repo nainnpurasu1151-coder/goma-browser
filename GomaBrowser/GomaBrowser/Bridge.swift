@@ -411,11 +411,11 @@ final class Bridge: NSObject, WKScriptMessageHandler {
     /// ページワールドで JS を実行する。callAsyncJavaScript で contentWorld を直接指定する
     /// (旧・DOMイベントリレーは実機で届かなかったため廃止)。
     func evalInPage(_ webView: WKWebView, _ js: String) {
-        DispatchQueue.main.async {
-            webView.callAsyncJavaScript("(0,eval)(code)", arguments: ["code": js], in: nil, contentWorld: .page) { result in
-                if case .failure(let error) = result {
-                    NSLog("[GomaBrowser] evalInPage failed: \(error)")
-                }
+        Task { @MainActor in
+            do {
+                _ = try await webView.callAsyncJavaScript("(0,eval)(code)", arguments: ["code": js], in: nil, contentWorld: .page)
+            } catch {
+                NSLog("[GomaBrowser] evalInPage failed: \(error)")
             }
         }
     }
