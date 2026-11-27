@@ -121,7 +121,49 @@ enum ShimFactory {
         """
     }
     static func source(extId: String, context: String, tabId: Int?, manifest: ExtensionManifest?) -> String {
-        preamble(extId: extId, context: context, tabId: tabId, manifest: manifest) + "\n" + shimSource + "\n" + relaySource
+        preamble(extId: extId, context: context, tabId: tabId, manifest: manifest) + "\n" + shimSource
+    }
+
+    /// content script 本体を URL マッチでガードして包む (WKUserScript は全ページに載るため)。
+    /// マッチ判定は正規表現を使わず glob で行う (埋め込み時のエスケープ事故を避ける)。
+    static func guardedContentScript(_ code: String, patterns: [String]) -> String {
+        """
+        ;(function(){
+          function __glob(pat, str){
+            var pi=0, si=0, star=-1, mark=0;
+            while (si < str.length){
+              if (pi < pat.length && pat.charAt(pi) === str.charAt(si)) { pi++; si++; }
+              else if (pi < pat.length && pat.charAt(pi) === '*') { star=pi++; mark=si; }
+              else if (star !== -1) { pi = star+1; si = ++mark; }
+              else return false;
+            }
+            while (pi < pat.length && pat.charAt(pi) === '*') pi++;
+            return pi === pat.length;
+          }
+          function __match(p, url){
+            var pm = p.split('://'); if (pm.length !== 2) return false;
+            var rest = pm[1]; var slash = rest.indexOf('/'); if (slash < 0) return false;
+            var pHost = rest.slice(0, slash).toLowerCase(), pPath = rest.slice(slash);
+            var um = url.split('://'); if (um.length !== 2) return false;
+            if (pm[0] !== '*' && pm[0] !== um[0]) return false;
+            var uRest = um[1]; var uSlash = uRest.indexOf('/');
+            var uHost = (uSlash < 0 ? uRest : uRest.slice(0, uSlash)).split(':')[0].toLowerCase();
+            var uPath = uSlash < 0 ? '/' : uRest.slice(uSlash);
+            if (pHost !== '*'){
+              if (pHost.indexOf('*.') === 0){
+                var suf = pHost.slice(2);
+                if (!(uHost === suf || __glob(pHost, uHost))) return false;
+              } else if (pHost !== uHost) return false;
+            }
+            return __glob(pPath, uPath);
+          }
+          var __pats = \(jsLiteral(patterns));
+          var __ok = false;
+          for (var i = 0; i < __pats.length; i++){ if (__match(__pats[i], location.href)) { __ok = true; break; } }
+          if (!__ok) return;
+        \(code)
+        })();
+        """
     }
 
     /// ページワールドへの動的評価リレー。
@@ -366,10 +408,16 @@ final class Bridge: NSObject, WKScriptMessageHandler {
                 result: ["results": [["frameId": 0, "result": NSNull()]]], error: nil)
     }
 
-    /// ページワールドで JS を実行する。DOM イベント経由のリレー (ShimFactory.relaySource) を使う。
+    /// ページワールドで JS を実行する。callAsyncJavaScript で contentWorld を直接指定する
+    /// (旧・DOMイベントリレーは実機で届かなかったため廃止)。
     func evalInPage(_ webView: WKWebView, _ js: String) {
-        let dispatch = "document.dispatchEvent(new CustomEvent('__goma_eval', {detail: \(ShimFactory.jsLiteral(js))}));"
-        webView.evaluateJavaScript(dispatch) { _, _ in }
+        DispatchQueue.main.async {
+            webView.callAsyncJavaScript("(0,eval)(code)", arguments: ["code": js], in: nil, contentWorld: .page) { result in
+                if case .failure(let error) = result {
+                    NSLog("[GomaBrowser] evalInPage failed: \(error)")
+                }
+            }
+        }
     }
 
     // MARK: 応答
@@ -379,32 +427,4 @@ final class Bridge: NSObject, WKScriptMessageHandler {
         DispatchQueue.main.async { self.evalInPage(webView, js) }
     }
 
-    // MARK: content script 注入 (ナビゲーション完了時に呼ぶ)
-    func injectContentScripts(into tab: BrowserTab, url: URL, atDocumentStart: Bool) {
-        guard let mgr = extensionManager else { return }
-        for ext in mgr.extensions where ext.isEnabled {
-            guard let scripts = ext.manifest.contentScripts else { continue }
-            for entry in scripts {
-                let runAt = entry.runAt ?? "document_idle"
-                let isStart = (runAt == "document_start")
-                if isStart != atDocumentStart { continue }
-                let matched = (entry.matches ?? []).contains { p in MatchPattern(p)?.matches(url) ?? false }
-                let excluded = (entry.excludeMatches ?? []).contains { p in MatchPattern(p)?.matches(url) ?? false }
-                guard matched, !excluded else { continue }
-                var source = ShimFactory.source(extId: ext.id, context: "content", tabId: tab.id, manifest: ext.manifest)
-                for css in entry.css ?? [] {
-                    if let cssText = try? String(contentsOf: mgr.fileURL(ext: ext, relativePath: css), encoding: .utf8) {
-                        source += "\n;(function(){var s=document.createElement('style');s.textContent=\(ShimFactory.jsLiteral(cssText));(document.head||document.documentElement).appendChild(s);})();"
-                    }
-                }
-                for js in entry.js ?? [] {
-                    if let code = try? String(contentsOf: mgr.fileURL(ext: ext, relativePath: js), encoding: .utf8) {
-                        source += "\n" + code
-                    }
-                }
-                let full = source
-                DispatchQueue.main.async { self.evalInPage(tab.webView, full) }
-            }
-        }
-    }
 }

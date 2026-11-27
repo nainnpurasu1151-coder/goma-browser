@@ -39,10 +39,32 @@ final class BrowserViewModel: NSObject, ObservableObject {
         config.setURLSchemeHandler(schemeHandler, forURLScheme: GomaSchemeHandler.scheme)
         config.allowsInlineMediaPlayback = true
         config.mediaTypesRequiringUserActionForPlayback = []
-        // 有効な拡張の shim + リレーを documentStart にページワールドへ注入する
+        // 有効な拡張の shim を documentStart にページワールドへ注入する
         for ext in extensionManager.extensions where ext.isEnabled {
             config.userContentController.addUserScript(
                 ShimFactory.userScript(extId: ext.id, context: "content", tabId: nextTabId, manifest: ext.manifest))
+            // content scripts も WKUserScript でネイティブ注入する (URLマッチは JS ガードで判定。
+            // run_at は document_start / それ以外→documentEnd に寄せる)
+            for entry in ext.manifest.contentScripts ?? [] {
+                let patterns = entry.matches ?? []
+                guard !patterns.isEmpty else { continue }
+                let time: WKUserScriptInjectionTime = (entry.runAt == "document_start") ? .atDocumentStart : .atDocumentEnd
+                for file in entry.js ?? [] {
+                    if let code = try? String(contentsOf: extensionManager.fileURL(ext: ext, relativePath: file), encoding: .utf8) {
+                        config.userContentController.addUserScript(
+                            WKUserScript(source: ShimFactory.guardedContentScript(code, patterns: patterns),
+                                         injectionTime: time, forMainFrameOnly: false, in: .page))
+                    }
+                }
+                for file in entry.css ?? [] {
+                    if let css = try? String(contentsOf: extensionManager.fileURL(ext: ext, relativePath: file), encoding: .utf8) {
+                        let payload = ";(function(){var s=document.createElement('style');s.textContent=\(ShimFactory.jsLiteral(css));(document.head||document.documentElement).appendChild(s);})();"
+                        config.userContentController.addUserScript(
+                            WKUserScript(source: ShimFactory.guardedContentScript(payload, patterns: patterns),
+                                         injectionTime: time, forMainFrameOnly: false, in: .page))
+                    }
+                }
+            }
         }
         let wv = WKWebView(frame: .zero, configuration: config)
         wv.allowsBackForwardNavigationGestures = true
@@ -95,9 +117,6 @@ extension BrowserViewModel: WKNavigationDelegate, WKUIDelegate {
         guard let tab = tab(for: webView) else { return }
         tab.url = webView.url
         tab.isLoading = true
-        if let url = webView.url {
-            bridge.injectContentScripts(into: tab, url: url, atDocumentStart: true)
-        }
     }
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         guard let tab = tab(for: webView) else { return }
@@ -106,9 +125,6 @@ extension BrowserViewModel: WKNavigationDelegate, WKUIDelegate {
         tab.isLoading = false
         tab.canGoBack = webView.canGoBack
         tab.canGoForward = webView.canGoForward
-        if let url = webView.url {
-            bridge.injectContentScripts(into: tab, url: url, atDocumentStart: false)
-        }
     }
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         guard let tab = tab(for: webView) else { return }
